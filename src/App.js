@@ -12,12 +12,12 @@ import Statistics from "./components/statistics";
 export default function Game() {
     let initialGameState = {
         level: 2,
-        secret: createSecret(2),
+        secret: createSecret(),
         tries: 0,
         guess: 50,
         moves: [],
-        maxTries: createMaxTries(2),
-        counter: getTimeOut(2)
+        maxTries: 7,
+        counter: 60
     }
 
     let initialStatistics = {
@@ -29,7 +29,7 @@ export default function Game() {
 
     //region action/life-cycle functions
     useEffect(() => {
-        let timerId = setInterval(countDown, 100);
+        let timerId = setInterval(countDown, 1000);
         return () => {
             clearInterval(timerId);
         }
@@ -51,8 +51,8 @@ export default function Game() {
         if (newGame.counter <= 0) {
             let message = "Game Over!";
             initialGameState.guess = "Time is out!";
-            initGame(newGame);
             newGame.moves.push(new Move(initialGameState.guess, message));
+            initGame(newGame);
             newStatistics.loses++;
             newStatistics.total++;
             setStatistics(newStatistics);
@@ -61,11 +61,13 @@ export default function Game() {
     }
 
     function initGame(game) {
-        game.counter = getTimeOut(game.level);
-        game.secret = createSecret(game.level);
-        game.maxTries = createMaxTries(game.level);
+        game.counter = 60;
+        game.secret = createSecret();
+        game.maxTries = 7;
+        game.guess = 50;
         game.tries = 0;
-        game.moves = [];
+        let message = "Game Over!";
+        game.moves.push(new Move(initialGameState.secret, message));
     }
 
     function play() {
@@ -99,28 +101,13 @@ export default function Game() {
     //endregion
 
     //region  utility functions
-    function createMaxTries(level) {
-        return Math.ceil(Math.log2(Math.pow(10, level)));
+
+    function createSecret() {
+        return Math.floor(Math.random() * 100) + 1;
     }
 
-    function createSecret(level) {
-        let max = Math.pow(10, level);
-        return Math.floor(Math.random() * max) + 1;
-    }
-
-    function getTimeOut(level) {
-        return 30 * level;
-    }
 
     //endregion
-
-    let triesBadge = "";
-    if (game.tries > 0) {
-        triesBadge = <Badge className="alert-primary"
-                            id="tries"
-                            label="Tries"
-                            value={game.tries}></Badge>;
-    }
     let movesCard = "";
     if (game.moves.length > 0) {
         movesCard =
@@ -153,21 +140,21 @@ export default function Game() {
             <Card>
                 <CardHeader title="Number Guessing Game"/>
                 <CardBody>
-
-                    <Badge className="alert-info"
-                           id="game-level"
-                           label="Game Level"
-                           value={game.level}></Badge>
-                    {triesBadge}<Badge
-                    className="alert-primary"
-                    id="remainingTries"
-                    label="Remaining Tries"></Badge>
-
                     <Badge className="alert-danger"
                            id="counter"
                            label="Counter"
                            value={game.counter}></Badge>
+                    <ProgressBar max={60}
+                                 now={game.counter}
+                    ></ProgressBar>
 
+                    <Badge className="alert-primary"
+                           id="tries"
+                           label="Tries"
+                           value={game.tries}></Badge>
+                    <ProgressBar max={7}
+                                 now={game.tries}
+                    ></ProgressBar>
                     <div className="form-group">
                         <label htmlFor="guess">Guess:</label>
 
