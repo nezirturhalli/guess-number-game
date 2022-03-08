@@ -11,12 +11,10 @@ import Statistics from "./components/statistics";
 
 export default function Game() {
     let initialGameState = {
-        level: 2,
         secret: createSecret(),
         tries: 0,
         guess: 50,
         moves: [],
-        maxTries: 7,
         counter: 60
     }
 
@@ -51,7 +49,7 @@ export default function Game() {
         if (newGame.counter <= 0) {
             let message = "Game Over!";
             initialGameState.guess = "Time is out!";
-            newGame.moves.push(new Move(initialGameState.guess, message));
+            newGame.moves.push(new Move(newGame.guess, message));
             initGame(newGame);
             newStatistics.loses++;
             newStatistics.total++;
@@ -63,18 +61,16 @@ export default function Game() {
     function initGame(game) {
         game.counter = 60;
         game.secret = createSecret();
-        game.maxTries = 7;
         game.guess = 50;
         game.tries = 0;
         let message = "Game Over!";
-        game.moves.push(new Move(initialGameState.secret, message));
+        game.moves.push(new Move(game.secret, message));
     }
 
     function play() {
         let newGame = {...game};
         let newStatistics = {...statistics};
         if (newGame.secret === newGame.guess) {
-            newGame.level++;
             newStatistics.wins++;
             newStatistics.total++;
             initGame(newGame);
@@ -82,7 +78,7 @@ export default function Game() {
             setStatistics(newStatistics);
         } else {
             newGame.tries++;
-            if (newGame.tries > newGame.maxTries) {
+            if (newGame.tries > 7) {
                 newStatistics.loses++;
                 newStatistics.total++;
                 setStatistics(newStatistics);
@@ -105,7 +101,6 @@ export default function Game() {
     function createSecret() {
         return Math.floor(Math.random() * 100) + 1;
     }
-
 
     //endregion
     let movesCard = "";
